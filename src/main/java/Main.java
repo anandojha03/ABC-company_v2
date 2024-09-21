@@ -14,7 +14,7 @@ public class Main {
        serverSocket.setReuseAddress(true);
 
        clientSocket = serverSocket.accept(); // Wait for connection from client.
-       String response = "HTTP/1.1 200 OK\\r\\n\\r\\n";
+       String response = "HTTP/1.1 200 OK\r\n\r\n";
        clientSocket.getOutputStream().write(response.getBytes());
        System.out.println("accepted new connection");
      } catch (IOException e) {
