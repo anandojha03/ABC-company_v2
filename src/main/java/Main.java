@@ -35,7 +35,7 @@ public class Main {
                  header = in.readLine();
              } while (!header.startsWith("User-Agent"));
              String[] headers = header.split(" ");
-             String successResponse = "HTTP/1.1 200 OK \r\nContent-Type: text/plain\r\nContent-Length: " + headers[1].length() + "\r\n\r\n" + headers[1];
+             String successResponse = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + headers[1].length() + "\r\n\r\n" + headers[1];
              clientSocket.getOutputStream().write(successResponse.getBytes());
          }else {
              clientSocket.getOutputStream().write(failureResponse.getBytes());
