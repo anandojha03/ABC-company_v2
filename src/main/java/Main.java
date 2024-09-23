@@ -17,19 +17,26 @@ public class Main {
        serverSocket.setReuseAddress(true);
 
        clientSocket = serverSocket.accept(); // Wait for connection from client.
-       String successResponse = "HTTP/1.1 200 OK\r\n\r\n";
        String failureResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
 
          BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
          String request = in.readLine();
          String[] httpHeaders = request.split(" ");
          if (httpHeaders[1].equals("/")) {
+             String successResponse = "HTTP/1.1 200 OK\r\n\r\n";
              clientSocket.getOutputStream().write(successResponse.getBytes());
          }else if (httpHeaders[1].startsWith("/echo")) {
              String[] body = httpHeaders[1].split("/");
-             String bodySuccessResponse = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + body[2].length() + "\r\n\r\n" + body[2];
-             clientSocket.getOutputStream().write(bodySuccessResponse.getBytes());
+             String successResponse = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + body[2].length() + "\r\n\r\n" + body[2];
+             clientSocket.getOutputStream().write(successResponse.getBytes());
+         }else if (httpHeaders[1].equals("/user-agent")) {
+             String header;
+             do {
+                 header = in.readLine();
+             } while (!header.startsWith("User-Agent"));
+             String[] headers = header.split(" ");
+             String successResponse = "HTTP/1.1 200 OK \r\nContent-Type: text/plain\r\nContent-Length: " + headers[1].length() + "\r\n\r\n" + headers[1];
+             clientSocket.getOutputStream().write(successResponse.getBytes());
          }else {
              clientSocket.getOutputStream().write(failureResponse.getBytes());
          }
