@@ -10,6 +10,10 @@ import java.util.Arrays;
 public class Main {
   public static void main(String[] args) {
 
+      String fileDirectory = null;
+      if (args.length > 1 && args[0].equals("--directory")) {
+          fileDirectory = args[1];
+      }
     Socket clientSocket = null;
      try {
        ServerSocket serverSocket = new ServerSocket(4221);
@@ -21,7 +25,8 @@ public class Main {
        while (true) {
            clientSocket = serverSocket.accept();
            System.out.println("accepted new connection");
-           ClientHandler clientHandler = new ClientHandler(clientSocket);
+
+           ClientHandler clientHandler = new ClientHandler(clientSocket, fileDirectory);
            new Thread(clientHandler).start();
        }
 
