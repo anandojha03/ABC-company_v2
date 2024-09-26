@@ -1,10 +1,7 @@
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Scanner;
@@ -45,6 +42,12 @@ public class ClientHandler implements Runnable{
             }
             request.setHeaders(map);
 
+            StringBuffer bodyBuffer = new StringBuffer();
+            while (in.ready()) {
+                bodyBuffer.append((char) in.read());
+            }
+
+            request.setBody(bodyBuffer.toString());
             return request;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -52,6 +55,23 @@ public class ClientHandler implements Runnable{
     }
 
     private String handle(Request request) throws IOException {
+
+        if (request.getMethod().equals("POST")) {
+            if (request.getPath().startsWith("/files")) {
+                String[] arr = request.getPath().split("/");
+                String fileName = arr[2];
+                File file = new File(fileDirectory + fileName);
+                if (file.createNewFile()) {
+                    FileWriter fileWriter = new FileWriter(file);
+                    fileWriter.write(request.getBody());
+                    fileWriter.close();
+                }
+                return new String("HTTP/1.1 201 Created\r\n\r\n");
+            }else {
+                return new String("HTTP/1.1 404 Not Found\r\n\r\n");
+            }
+        }
+
         if (request.getPath().equals("/")) {
             return new String(Constants.HTTP_1_1 + " " + Constants.SUCCESS200 + " " + Constants.OK + Constants.CRLF + Constants.CRLF);
         } else if (request.getPath().startsWith("/echo")) {

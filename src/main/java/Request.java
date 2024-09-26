@@ -7,5 +7,5 @@ public class Request {
     private String method;
     private String path;
     private TreeMap<String, String> headers;
-    private TreeMap<String, String> body;
+    private String body;
 }
