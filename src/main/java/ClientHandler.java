@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Scanner;
 import java.util.TreeMap;
+import java.util.zip.GZIPOutputStream;
 
 @AllArgsConstructor
 public class ClientHandler implements Runnable{
@@ -70,9 +71,14 @@ public class ClientHandler implements Runnable{
         }
         else if ((request.getHeaders().containsKey("Accept-Encoding"))) {
             if (request.getHeaders().get("Accept-Encoding").contains("gzip")) {
+                System.out.println(request);
+                byte[] responseBody = compressStringToGzip(request.getPath().substring(6));
+                String hexResponseBody = bytesToHex(responseBody);
                 return new String("HTTP/1.1 200 OK\r\n" +
                         "Content-Type: text/plain\r\n" +
-                        "Content-Encoding: gzip\r\n\r\n");
+                        "Content-Encoding: gzip\r\n" +
+                        "Content-Length: " + responseBody.length + "\r\n\r\n" +
+                        hexResponseBody);
             }else {
                 return new String("HTTP/1.1 200 OK\r\n" +
                         "Content-Type: text/plain\r\n\r\n");
@@ -98,5 +104,28 @@ public class ClientHandler implements Runnable{
         }else {
             return new String(Constants.HTTP_1_1 + " 404 Not Found" + Constants.CRLF + Constants.CRLF);
         }
+    }
+
+    public static byte[] compressStringToGzip(String str) throws IOException {
+        if (str == null || str.isEmpty()) {
+            return null;
+        }
+        byte[] inputBytes = str.getBytes();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        try (GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+            gzipOutputStream.write(inputBytes);
+        }
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : bytes) {
+            // Convert each byte to hex format (2 characters) and append to the StringBuilder
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
     }
 }
