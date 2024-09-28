@@ -88,8 +88,25 @@ public class ClientHandler implements Runnable{
         } else if (request.getPath().equals("/")) {
             return new String(Constants.HTTP_1_1 + " " + Constants.SUCCESS200 + " " + Constants.OK + Constants.CRLF + Constants.CRLF);
         } else if (request.getPath().startsWith("/echo")) {
-            String[] path = request.getPath().split("/");
-            return new String(Constants.HTTP_1_1 + " " + Constants.SUCCESS200 + " " + Constants.OK + Constants.CRLF + Constants.CONTENT_TYPE + " " + Constants.TEXT_PLAIN + Constants.CRLF + Constants.CONTENT_LENGTH + " " + path[2].length() + Constants.CRLF + Constants.CRLF + path[2]);
+
+            if ((request.getHeaders().containsKey("Accept-Encoding"))) {
+                if (request.getHeaders().get("Accept-Encoding").contains("gzip")) {
+                    System.out.println(request);
+                    byte[] responseBody = compressStringToGzip(request.getPath().substring(6));
+                    return new String("HTTP/1.1 200 OK\r\n" +
+                            "Content-Encoding: gzip\r\n" +
+                            "Content-Type: text/plain\r\n" +
+                            "Content-Length: " + responseBody.length + "\r\n\r\n");
+                }else {
+                    return new String("HTTP/1.1 200 OK\r\n" +
+                            "Content-Type: text/plain\r\n\r\n");
+                }
+
+            } else {
+                String[] path = request.getPath().split("/");
+                return new String(Constants.HTTP_1_1 + " " + Constants.SUCCESS200 + " " + Constants.OK + Constants.CRLF + Constants.CONTENT_TYPE + " " + Constants.TEXT_PLAIN + Constants.CRLF + Constants.CONTENT_LENGTH + " " + path[2].length() + Constants.CRLF + Constants.CRLF + path[2]);
+
+            }
         } else if (request.getPath().startsWith("/user-agent")) {
             return new String(Constants.HTTP_1_1 + " " + Constants.SUCCESS200 + " " + Constants.OK + Constants.CRLF + Constants.CONTENT_TYPE + " " + Constants.TEXT_PLAIN + Constants.CRLF + Constants.CONTENT_LENGTH + " " + request.getHeaders().get("User-Agent").length() + Constants.CRLF + Constants.CRLF + request.getHeaders().get("User-Agent"));
         } else if (request.getPath().startsWith("/files")) {
