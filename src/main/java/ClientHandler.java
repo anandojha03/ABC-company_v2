@@ -72,20 +72,7 @@ public class ClientHandler implements Runnable{
                 }
                 return new String("HTTP/1.1 201 Created\r\n\r\n");
         }
-        else if ((request.getHeaders().containsKey("Accept-Encoding"))) {
-            if (request.getHeaders().get("Accept-Encoding").contains("gzip")) {
-                System.out.println(request);
-                byte[] responseBody = compressStringToGzip(request.getPath().substring(6));
-                return new String("HTTP/1.1 200 OK\r\n" +
-                        "Content-Encoding: gzip\r\n" +
-                        "Content-Type: text/plain\r\n" +
-                        "Content-Length: " + responseBody.length + "\r\n\r\n");
-            }else {
-                return new String("HTTP/1.1 200 OK\r\n" +
-                        "Content-Type: text/plain\r\n\r\n");
-            }
-
-        } else if (request.getPath().equals("/")) {
+        else if (request.getPath().equals("/")) {
             return new String(Constants.HTTP_1_1 + " " + Constants.SUCCESS200 + " " + Constants.OK + Constants.CRLF + Constants.CRLF);
         } else if (request.getPath().startsWith("/echo")) {
 
