@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Scanner;
 import java.util.TreeMap;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 @AllArgsConstructor
@@ -20,7 +21,9 @@ public class ClientHandler implements Runnable{
         try {
             String response = handle(request);
             System.out.println("response sending " + response);
+            byte[] responseBody = compressStringToGzip(request.getPath().substring(6));
             clientSocket.getOutputStream().write(response.getBytes());
+            clientSocket.getOutputStream().write(responseBody);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -73,12 +76,10 @@ public class ClientHandler implements Runnable{
             if (request.getHeaders().get("Accept-Encoding").contains("gzip")) {
                 System.out.println(request);
                 byte[] responseBody = compressStringToGzip(request.getPath().substring(6));
-                String hexResponseBody = bytesToHex(responseBody);
                 return new String("HTTP/1.1 200 OK\r\n" +
                         "Content-Encoding: gzip\r\n" +
                         "Content-Type: text/plain\r\n" +
-                        "Content-Length: " + responseBody.length + "\r\n\r\n" +
-                        hexResponseBody);
+                        "Content-Length: " + responseBody.length + "\r\n\r\n");
             }else {
                 return new String("HTTP/1.1 200 OK\r\n" +
                         "Content-Type: text/plain\r\n\r\n");
@@ -120,12 +121,5 @@ public class ClientHandler implements Runnable{
         return byteArrayOutputStream.toByteArray();
     }
 
-    public static String bytesToHex(byte[] bytes) {
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : bytes) {
-            // Convert each byte to hex format (2 characters) and append to the StringBuilder
-            hexString.append(String.format("%02x", b));
-        }
-        return hexString.toString();
-    }
+
 }
