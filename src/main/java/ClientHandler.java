@@ -21,9 +21,10 @@ public class ClientHandler implements Runnable{
         try {
             String response = handle(request);
             System.out.println("response sending " + response);
-            byte[] responseBody = compressStringToGzip(request.getPath().substring(6));
-            clientSocket.getOutputStream().write(response.getBytes());
-            clientSocket.getOutputStream().write(responseBody);
+            if (response != null) {
+                clientSocket.getOutputStream().write(response.getBytes());
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -80,10 +81,13 @@ public class ClientHandler implements Runnable{
                 if (request.getHeaders().get("Accept-Encoding").contains("gzip")) {
                     System.out.println(request);
                     byte[] responseBody = compressStringToGzip(request.getPath().substring(6));
-                    return new String("HTTP/1.1 200 OK\r\n" +
+                    String response = new String("HTTP/1.1 200 OK\r\n" +
                             "Content-Encoding: gzip\r\n" +
                             "Content-Type: text/plain\r\n" +
                             "Content-Length: " + responseBody.length + "\r\n\r\n");
+                    clientSocket.getOutputStream().write(response.getBytes());
+                    clientSocket.getOutputStream().write(responseBody);
+                    return null;
                 }else {
                     return new String("HTTP/1.1 200 OK\r\n" +
                             "Content-Type: text/plain\r\n\r\n");
