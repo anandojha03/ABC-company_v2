@@ -75,8 +75,8 @@ public class ClientHandler implements Runnable{
                 byte[] responseBody = compressStringToGzip(request.getPath().substring(6));
                 String hexResponseBody = bytesToHex(responseBody);
                 return new String("HTTP/1.1 200 OK\r\n" +
-                        "Content-Type: text/plain\r\n" +
                         "Content-Encoding: gzip\r\n" +
+                        "Content-Type: text/plain\r\n" +
                         "Content-Length: " + responseBody.length + "\r\n\r\n" +
                         hexResponseBody);
             }else {
