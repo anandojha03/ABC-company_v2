@@ -72,6 +72,18 @@ public class ClientHandler implements Runnable{
             }
         }
 
+        if (request.getHeaders().containsKey("Content-Encoding")) {
+            if (request.getHeaders().get("Content-Encoding").equals("gzip")) {
+                return new String("HTTP/1.1 200 OK\r\n" +
+                        "Content-Type: text/plain\r\n" +
+                        "Content-Encoding: gzip\r\n");
+            }else {
+                return new String("HTTP/1.1 200 OK\r\n" +
+                        "Content-Type: text/plain\r\n");
+            }
+
+        }
+
         if (request.getPath().equals("/")) {
             return new String(Constants.HTTP_1_1 + " " + Constants.SUCCESS200 + " " + Constants.OK + Constants.CRLF + Constants.CRLF);
         } else if (request.getPath().startsWith("/echo")) {
