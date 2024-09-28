@@ -75,7 +75,7 @@ public class ClientHandler implements Runnable{
                         "Content-Encoding: gzip\r\n\r\n");
             }else {
                 return new String("HTTP/1.1 200 OK\r\n" +
-                        "Content-Type: text/plain\r\n");
+                        "Content-Type: text/plain\r\n\r\n");
             }
 
         } else if (request.getPath().equals("/")) {
