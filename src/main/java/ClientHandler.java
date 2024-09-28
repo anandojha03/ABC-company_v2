@@ -18,6 +18,7 @@ public class ClientHandler implements Runnable{
         Request request = parseRequest(clientSocket);
         try {
             String response = handle(request);
+            System.out.println("response sending " + response);
             clientSocket.getOutputStream().write(response.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -56,8 +57,7 @@ public class ClientHandler implements Runnable{
 
     private String handle(Request request) throws IOException {
 
-        if (request.getMethod().equals("POST")) {
-            if (request.getPath().startsWith("/files")) {
+        if (request.getMethod().equals("POST") && (request.getPath().startsWith("/files"))) {
                 String[] arr = request.getPath().split("/");
                 String fileName = arr[2];
                 File file = new File(fileDirectory + fileName);
@@ -67,24 +67,18 @@ public class ClientHandler implements Runnable{
                     fileWriter.close();
                 }
                 return new String("HTTP/1.1 201 Created\r\n\r\n");
-            }else {
-                return new String("HTTP/1.1 404 Not Found\r\n\r\n");
-            }
         }
-
-        if (request.getHeaders().containsKey("Content-Encoding")) {
+        else if ((request.getHeaders().containsKey("Content-Encoding"))) {
             if (request.getHeaders().get("Content-Encoding").equals("gzip")) {
                 return new String("HTTP/1.1 200 OK\r\n" +
                         "Content-Type: text/plain\r\n" +
-                        "Content-Encoding: gzip\r\n");
+                        "Content-Encoding: gzip\r\n\r\n");
             }else {
                 return new String("HTTP/1.1 200 OK\r\n" +
                         "Content-Type: text/plain\r\n");
             }
 
-        }
-
-        if (request.getPath().equals("/")) {
+        } else if (request.getPath().equals("/")) {
             return new String(Constants.HTTP_1_1 + " " + Constants.SUCCESS200 + " " + Constants.OK + Constants.CRLF + Constants.CRLF);
         } else if (request.getPath().startsWith("/echo")) {
             String[] path = request.getPath().split("/");
